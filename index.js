@@ -1,29 +1,20 @@
-const http = require('node:http');
-const fs = require('node:fs')
+const express = require("express");
 
-const server = http.createServer();
+const app = express();
 
-server.on('request', (request, res) => 
-{
-    if(request.url == "/")
-    {
-        serveMain(res);
-    }
-    else if(request.url == '/about')
-    {
-        serveAbout(res);
-    }
-    else if(request.url == '/contact-me')
-    {
-        serveContact(res);
-    }
-    else
-    {
-        serve404(res);
-    }
-});
+const fileOptions = {
+    root: __dirname
+};
 
-server.listen(8080);
+app.get("/", (req, res) => serveMain(res));
+app.get("/about", (req, res) => serveAbout(res));
+app.get("/contact-me", (req, res) => serveContact(res));
+
+app.use((req, res, next) => serve404(res));
+
+const PORT = 8080;
+
+app.listen(PORT);
 
 function serveMain(result){
     returnPage('index.html', result);
@@ -39,22 +30,11 @@ function serveContact(result){
 
 function serve404(result)
 {
+    result.status(404);
     returnPage('404.html', result);
 }
 
 function returnPage(pageName, result)
 {
-    fs.readFile(pageName, (err, data) =>
-    {
-        if(err)
-        {
-            result.writeHead(500, {'Content-Type': 'application/json'});
-            result.end();
-        }
-        else
-        {
-            result.writeHead(200, {'Content-Type': 'text/html'});
-            result.end(data);
-        }
-    })
+    result.sendFile(pageName, fileOptions);
 }
