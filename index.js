@@ -1,10 +1,14 @@
 const express = require("express");
+const path = require("node:path");
 
 const app = express();
 
 const fileOptions = {
     root: __dirname
 };
+
+app.set('views', path.join(__dirname, "views"));
+app.set('view engine', "ejs");
 
 app.get("/", (req, res) => serveMain(res));
 app.get("/about", (req, res) => serveAbout(res));
@@ -21,7 +25,7 @@ function serveMain(result){
 }
 
 function serveAbout(result){
-    returnPage('about.html', result);
+    result.render("about", {title:"About"});
 }
 
 function serveContact(result){
